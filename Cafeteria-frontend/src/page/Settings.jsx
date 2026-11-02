@@ -3,7 +3,6 @@ import { useAuth } from '../auth/AuthContext.js'
 import { getDefaultSettings } from '../config/defaults.js'
 import { DEMO_CREDENTIALS } from '../config/env.js'
 import { CURRENCIES, formatCurrency } from '../config/format.js'
-import { ROUTES } from '../config/routes.js'
 import { getTheme, THEMES } from '../config/theme.js'
 import { useSettings } from '../settings/SettingsContext.js'
 
@@ -54,19 +53,6 @@ function Settings() {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-stone-200 sm:p-8">
-        <span className="inline-flex rounded-full bg-accent-soft px-3 py-1 text-xs font-semibold uppercase tracking-wider text-accent-dark">
-          Configuración funcional
-        </span>
-
-        <h1 className="mt-4 text-3xl font-bold text-stone-900">Configuración</h1>
-        <p className="mt-2 max-w-2xl text-sm leading-6 text-stone-600">
-          Cambia el nombre, la moneda y el color de acento. Al guardar, los
-          ajustes se aplican a toda la aplicación y quedan guardados en este
-          navegador.
-        </p>
-      </section>
-
       <div className="grid gap-4 lg:grid-cols-3">
         <form
           onSubmit={handleSubmit}
@@ -264,23 +250,6 @@ function Settings() {
           </dl>
         </article>
       </div>
-
-      <article className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-stone-200">
-        <h2 className="text-base font-bold text-stone-900">Rutas</h2>
-        <ul className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-          {Object.entries(ROUTES).map(([key, path]) => (
-            <li
-              key={key}
-              className="flex items-center justify-between gap-2 rounded-lg bg-stone-50 px-3 py-2"
-            >
-              <span className="text-sm capitalize text-stone-600">{key}</span>
-              <span className="font-mono text-xs font-semibold text-stone-800">
-                {path}
-              </span>
-            </li>
-          ))}
-        </ul>
-      </article>
 
       <p className="rounded-xl border border-dashed border-accent-ring bg-accent-soft px-4 py-3 text-sm text-accent-dark">
         Los ajustes se guardan en <code className="font-mono">localStorage</code>.

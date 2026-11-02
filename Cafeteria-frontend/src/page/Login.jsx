@@ -120,14 +120,14 @@ function Login() {
               {settings.appName}
             </h2>
             <p className="mt-3 max-w-xs text-sm leading-6 text-white/80">
-              Tus datos y tus compras, en un solo lugar.
+              Café y bebidas frías en un solo lugar.
             </p>
           </div>
 
           <ul className="mt-10 space-y-4 text-sm font-medium">
-            <FeatureItem>Acceso seguro a tu cuenta</FeatureItem>
-            <FeatureItem>Historial de compras disponible</FeatureItem>
-            <FeatureItem>Datos personales protegidos</FeatureItem>
+            <FeatureItem>Café americano, capuchino y chocolate</FeatureItem>
+            <FeatureItem>Frappés, cold brew y agua de horchata</FeatureItem>
+            <FeatureItem>Opciones calientes y frías todo el día</FeatureItem>
           </ul>
 
           <p className="mt-10 text-xs font-medium uppercase tracking-[0.2em] text-white/70">

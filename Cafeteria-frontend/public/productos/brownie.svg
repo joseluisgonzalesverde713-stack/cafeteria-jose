@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" role="img" aria-label="Brownie">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f6ede6"/>
+      <stop offset="1" stop-color="#e4cdba"/>
+    </linearGradient>
+    <linearGradient id="cake" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#6b4226"/>
+      <stop offset="1" stop-color="#42261a"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="300" fill="url(#bg)"/>
+  <circle cx="328" cy="66" r="40" fill="#ffffff" opacity="0.4"/>
+  <circle cx="64" cy="232" r="38" fill="#ffffff" opacity="0.32"/>
+  <ellipse cx="200" cy="246" rx="120" ry="20" fill="#c9a98c" opacity="0.55"/>
+  <path d="M116 130l24-18h144l-24 18z" fill="#8a5a34"/>
+  <path d="M260 130l24-18v92l-24 18z" fill="#3f2415"/>
+  <path d="M116 130l144 0 24 74-144 0z" fill="url(#cake)"/>
+  <path d="M116 130l-16 92 140 0 20-18-144 0z" fill="#5a3420"/>
+  <path d="M116 130l-16 92v-92z" fill="#3f2415"/>
+  <circle cx="156" cy="160" r="7" fill="#2b1710"/>
+  <circle cx="204" cy="150" r="8" fill="#2b1710"/>
+  <circle cx="238" cy="176" r="6" fill="#2b1710"/>
+  <circle cx="180" cy="192" r="6" fill="#2b1710"/>
+  <circle cx="248" cy="146" r="5" fill="#2b1710"/>
+  <path d="M132 118c-8-10 8-16 0-26M176 116c-8-10 8-16 0-26M220 118c-8-10 8-16 0-26" fill="none" stroke="#c9a98c" stroke-width="5" stroke-linecap="round"/>
+</svg>

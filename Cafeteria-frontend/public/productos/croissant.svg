@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" role="img" aria-label="Croissant">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fdf4e4"/>
+      <stop offset="1" stop-color="#f1ddbb"/>
+    </linearGradient>
+    <linearGradient id="crust" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f2c477"/>
+      <stop offset="1" stop-color="#d99347"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="300" fill="url(#bg)"/>
+  <circle cx="326" cy="68" r="40" fill="#ffffff" opacity="0.4"/>
+  <circle cx="64" cy="232" r="38" fill="#ffffff" opacity="0.32"/>
+  <ellipse cx="200" cy="244" rx="126" ry="20" fill="#ddb98c" opacity="0.55"/>
+  <path d="M96 208c-14-40 25-92 60-98 10-2 15 8 8 15-24 24-26 55-14 78 6 12-4 22-16 20-16-3-30-5-38-15z" fill="url(#crust)" stroke="#b9773a" stroke-width="5"/>
+  <path d="M304 208c14-40-25-92-60-98-10-2-15 8-8 15 24 24 26 55 14 78-6 12 4 22 16 20 16-3 30-5 38-15z" fill="url(#crust)" stroke="#b9773a" stroke-width="5"/>
+  <path d="M140 214c-4-44 20-84 60-90 40 6 64 46 60 90-20 12-100 12-120 0z" fill="url(#crust)" stroke="#b9773a" stroke-width="5"/>
+  <path d="M158 206c-6-34 12-62 42-68M242 206c6-34-12-62-42-68" fill="none" stroke="#d99347" stroke-width="8" stroke-linecap="round"/>
+  <path d="M180 210c-2-24 6-46 20-54M220 210c2-24-6-46-20-54" fill="none" stroke="#e8b26d" stroke-width="7" stroke-linecap="round"/>
+  <circle cx="200" cy="126" r="4" fill="#b9773a"/>
+</svg>

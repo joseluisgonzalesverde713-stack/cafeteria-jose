@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { useAuth } from '../auth/AuthContext.js'
 import OrderEditor from '../components/OrderEditor.jsx'
 import { formatCurrency } from '../config/format.js'
 import { receiptPath } from '../config/routes.js'
@@ -37,12 +36,10 @@ function getFavoriteProduct(orders) {
 }
 
 function Dashboard() {
-  const { user } = useAuth()
   const { settings } = useSettings()
   const { orders, updateOrder, deleteOrder } = useOrders()
   const [editingOrder, setEditingOrder] = useState(null)
   const [deletingOrder, setDeletingOrder] = useState(null)
-  const nombre = user?.name ?? 'cliente'
   const pedidos = [...orders].reverse()
   const puntos = Math.round(
     orders.reduce((total, order) => total + Number(order.total || 0), 0),
@@ -68,15 +65,6 @@ function Dashboard() {
 
   return (
     <div className="space-y-8">
-      <header>
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent-strong">
-          {settings.appName}
-        </p>
-        <h1 className="mt-2 text-3xl font-bold text-stone-900">
-          Bienvenido, {nombre}
-        </h1>
-      </header>
-
       <section aria-labelledby="resumen-titulo" className="space-y-4">
         <h2 id="resumen-titulo" className="text-2xl font-bold text-stone-900">
           Resumen

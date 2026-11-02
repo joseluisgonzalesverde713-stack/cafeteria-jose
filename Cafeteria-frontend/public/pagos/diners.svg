@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 80" role="img" aria-label="Diners Club">
+  <rect width="120" height="80" rx="20" fill="#0b4f8a"/>
+  <circle cx="60" cy="40" r="23" fill="#ffffff"/>
+  <ellipse cx="60" cy="40" rx="10" ry="19" fill="#0b4f8a"/>
+  <circle cx="52" cy="40" r="5" fill="#ffffff" opacity="0.6"/>
+</svg>

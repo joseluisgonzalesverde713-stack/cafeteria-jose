@@ -13,9 +13,27 @@ function readStoredProducts() {
 
     const parsed = JSON.parse(raw)
 
-    return Array.isArray(parsed) && parsed.length > 0
-      ? parsed
-      : DEFAULT_PRODUCTS
+    if (!Array.isArray(parsed) || parsed.length === 0) {
+      return DEFAULT_PRODUCTS
+    }
+
+    const storedIds = new Set(parsed.map((product) => product.id))
+    const missingDefaults = DEFAULT_PRODUCTS.filter(
+      (product) => !storedIds.has(product.id),
+    )
+    const updated = parsed.map((product) => {
+      const fallback = DEFAULT_PRODUCTS.find(
+        (entry) => entry.id === product.id,
+      )
+
+      if (fallback && String(product.imagen).endsWith('.svg')) {
+        return { ...product, imagen: fallback.imagen }
+      }
+
+      return product
+    })
+
+    return [...updated, ...missingDefaults]
   } catch {
     return DEFAULT_PRODUCTS
   }

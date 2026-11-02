@@ -9,45 +9,68 @@ import { useSettings } from '../settings/SettingsContext.js'
 
 function Menu() {
   const { settings } = useSettings()
-  const { products, updateProduct, resetProducts } = useProducts()
+  const { products, updateProduct } = useProducts()
   const { items, addItem, count } = useCart()
   const [editingProduct, setEditingProduct] = useState(null)
+  const [query, setQuery] = useState('')
+
+  const term = query.trim().toLowerCase()
+  const filteredProducts = term
+    ? products.filter(
+        (producto) =>
+          producto.nombre.toLowerCase().includes(term) ||
+          producto.categoria.toLowerCase().includes(term),
+      )
+    : products
 
   function handleSave(nextProduct) {
     updateProduct(nextProduct)
     setEditingProduct(null)
   }
 
-  function handleReset() {
-    resetProducts()
-    setEditingProduct(null)
-  }
-
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap justify-end gap-2">
-        {count > 0 && (
-          <Link
-            to={ROUTES.cart}
-            className="rounded-xl bg-accent px-5 py-3 text-sm font-semibold text-white transition hover:bg-accent-strong focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2"
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="relative w-full sm:max-w-md">
+          <svg
+            className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-stone-400"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            aria-hidden="true"
           >
-            Ir al carrito ({count})
-          </Link>
-        )}
-        <button
-          type="button"
-          onClick={handleReset}
-          className="rounded-xl border border-stone-300 px-5 py-3 text-sm font-semibold text-stone-700 transition hover:border-accent-ring hover:text-accent-strong focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2"
-        >
-          Restablecer catálogo
-        </button>
+            <circle cx="11" cy="11" r="7" />
+            <path d="m20 20-3.5-3.5" />
+          </svg>
+          <input
+            type="search"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Buscar productos por nombre o categoría"
+            aria-label="Buscar productos"
+            className="w-full rounded-xl border border-stone-300 bg-white py-3 pl-12 pr-4 text-sm text-stone-900 shadow-sm outline-none transition placeholder:text-stone-400 focus:border-accent focus:ring-2 focus:ring-accent-ring"
+          />
+        </div>
+
+        <div className="flex flex-wrap justify-end gap-2">
+          {count > 0 && (
+            <Link
+              to={ROUTES.cart}
+              className="rounded-xl bg-accent px-5 py-3 text-sm font-semibold text-white transition hover:bg-accent-strong focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2"
+            >
+              Ir al carrito ({count})
+            </Link>
+          )}
+        </div>
       </div>
 
       <section
         aria-label="Productos del menú"
         className="grid gap-4 sm:grid-cols-2"
       >
-        {products.map((producto) => (
+        {filteredProducts.map((producto) => (
           <article
             key={producto.id}
             className="flex flex-col overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-stone-200"
@@ -109,6 +132,12 @@ function Menu() {
           </article>
         ))}
       </section>
+
+      {filteredProducts.length === 0 && (
+        <p className="rounded-2xl bg-white p-6 text-center text-sm text-stone-500 shadow-sm ring-1 ring-stone-200">
+          No se encontraron productos para “{query.trim()}”.
+        </p>
+      )}
 
       {editingProduct && (
         <ProductEditor

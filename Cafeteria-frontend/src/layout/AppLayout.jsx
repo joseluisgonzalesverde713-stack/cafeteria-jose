@@ -27,7 +27,7 @@ function AppLayout() {
   return (
     <div className="min-h-screen bg-stone-100 text-stone-800">
       <header className="border-b border-stone-200 bg-white print:hidden">
-        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-4 px-4 py-4 sm:px-6">
+        <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-4 px-4 py-4 sm:px-6">
           <div className="flex items-center gap-3">
             <span className="flex size-10 items-center justify-center rounded-xl bg-accent text-sm font-black tracking-tight text-white">
               {settings.shortName}
@@ -64,15 +64,15 @@ function AppLayout() {
                 )}
               </NavLink>
             ))}
-
-            <button
-              type="button"
-              onClick={handleLogout}
-              className="rounded-lg border border-stone-300 px-4 py-2 text-sm font-semibold text-stone-700 transition hover:border-accent-ring hover:text-accent-strong focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2"
-            >
-              Cerrar sesión
-            </button>
           </nav>
+
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="ml-auto rounded-lg border border-stone-300 px-4 py-2 text-sm font-semibold text-stone-700 transition hover:border-accent-ring hover:text-accent-strong focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2"
+          >
+            🚪 Cerrar sesión
+          </button>
         </div>
       </header>
 

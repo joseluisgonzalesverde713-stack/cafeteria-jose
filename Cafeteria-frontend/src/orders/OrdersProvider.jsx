@@ -58,11 +58,23 @@ function OrdersProvider({ children }) {
   }, [orders])
 
   const addOrder = useCallback(
-    ({ total, currency, items, metodoPago, cliente }) => {
+    ({
+      total,
+      subtotal,
+      descuento,
+      cupon,
+      currency,
+      items,
+      metodoPago,
+      cliente,
+    }) => {
       const order = {
         id: nextOrderId(orders),
         fecha: today(),
         total,
+        subtotal,
+        descuento,
+        cupon,
         currency,
         estado: 'Pagado',
         metodoPago,

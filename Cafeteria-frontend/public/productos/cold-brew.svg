@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" role="img" aria-label="Cold brew">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#eef4f8"/>
+      <stop offset="1" stop-color="#d3e2ec"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="300" fill="url(#bg)"/>
+  <circle cx="328" cy="66" r="42" fill="#ffffff" opacity="0.4"/>
+  <circle cx="62" cy="230" r="40" fill="#ffffff" opacity="0.32"/>
+  <ellipse cx="200" cy="252" rx="96" ry="16" fill="#b9cdd9" opacity="0.6"/>
+  <path d="M214 40 196 128" stroke="#0f766e" stroke-width="10" stroke-linecap="round"/>
+  <path d="M150 116h100l-9 124a18 18 0 0 1-18 17h-46a18 18 0 0 1-18-17z" fill="#ffffff" opacity="0.6" stroke="#9cc4dd" stroke-width="4"/>
+  <path d="M158 146h84l-7 94a13 13 0 0 1-13 12h-44a13 13 0 0 1-13-12z" fill="#3f2415"/>
+  <path d="M158 146h84l-2 24h-80z" fill="#5a3420"/>
+  <ellipse cx="200" cy="116" rx="50" ry="14" fill="#dfeef7"/>
+  <rect x="168" y="176" width="30" height="30" rx="6" fill="#ffffff" opacity="0.4" transform="rotate(-12 183 191)"/>
+  <rect x="206" y="196" width="28" height="28" rx="6" fill="#ffffff" opacity="0.34" transform="rotate(14 220 210)"/>
+  <rect x="176" y="214" width="24" height="24" rx="5" fill="#ffffff" opacity="0.3" transform="rotate(6 188 226)"/>
+  <path d="M176 150c6 6 18 6 24 0M210 154c6 6 16 6 22 0" fill="none" stroke="#6b4226" stroke-width="4" stroke-linecap="round"/>
+</svg>

@@ -44,7 +44,11 @@ function OrderEditor({ order, onClose, onSave }) {
 
     onSave({
       ...order,
-      cliente: { nombre: nombreCliente, correo: correoCliente },
+      cliente: {
+        ...order.cliente,
+        nombre: nombreCliente,
+        correo: correoCliente,
+      },
       metodoPago,
       estado,
     })
@@ -148,7 +152,10 @@ function OrderEditor({ order, onClose, onSave }) {
                 onChange={(event) => setMetodoPago(event.target.value)}
                 className={FIELD_CLASSES}
               >
-                {PAYMENT_METHODS.map((method) => (
+                {[
+                  ...(PAYMENT_METHODS.includes(metodoPago) ? [] : [metodoPago]),
+                  ...PAYMENT_METHODS,
+                ].map((method) => (
                   <option key={method} value={method}>
                     {method}
                   </option>

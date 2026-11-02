@@ -23,7 +23,7 @@ export const DEFAULT_ORDERS = [
     total: 52,
     currency: 'MXN',
     estado: 'Entregado',
-    metodoPago: 'Tarjeta',
+    metodoPago: 'Visa',
     cliente: DEMO_CLIENT,
     items: [{ nombre: 'Frappé de moka', precio: 52, cantidad: 1 }],
   },
@@ -33,7 +33,7 @@ export const DEFAULT_ORDERS = [
     total: 96,
     currency: 'MXN',
     estado: 'Entregado',
-    metodoPago: 'Transferencia',
+    metodoPago: 'Yape',
     cliente: DEMO_CLIENT,
     items: [
       { nombre: 'Frappé de moka', precio: 52, cantidad: 1 },

@@ -32,6 +32,13 @@ function Receipt() {
 
   const items = order.items ?? []
   const currency = order.currency ?? settings.currency
+  const descuento = Number(order.descuento) || 0
+  const subtotal =
+    Number(order.subtotal) ||
+    items.reduce(
+      (sum, item) => sum + (Number(item.precio) || 0) * (Number(item.cantidad) || 0),
+      0,
+    )
 
   return (
     <div className="mx-auto max-w-2xl space-y-4">
@@ -66,6 +73,14 @@ function Receipt() {
             <p className="text-sm text-stone-600">
               {order.cliente?.correo ?? 'Sin correo registrado'}
             </p>
+            {order.cliente?.telefono && (
+              <p className="text-sm text-stone-600">
+                Celular: {order.cliente.telefono}
+              </p>
+            )}
+            {order.cliente?.dni && (
+              <p className="text-sm text-stone-600">DNI: {order.cliente.dni}</p>
+            )}
           </div>
 
           <div>
@@ -120,6 +135,18 @@ function Receipt() {
 
         <div className="mt-4 flex justify-end border-t border-dashed border-stone-300 pt-4">
           <div className="text-right">
+            {descuento > 0 && (
+              <div className="mb-2 space-y-1 text-sm">
+                <p className="flex justify-between gap-8 text-stone-600">
+                  <span>Subtotal</span>
+                  <span>{formatCurrency(subtotal, currency)}</span>
+                </p>
+                <p className="flex justify-between gap-8 text-emerald-700">
+                  <span>Cupón {order.cupon ?? 'descuento'}</span>
+                  <span>-{formatCurrency(descuento, currency)}</span>
+                </p>
+              </div>
+            )}
             <p className="text-xs font-semibold uppercase tracking-wider text-stone-500">
               Total
             </p>

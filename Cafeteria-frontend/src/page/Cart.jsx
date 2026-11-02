@@ -2,8 +2,9 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext.js'
 import { useCart } from '../cart/CartContext.js'
+import { COUPONS, findCoupon } from '../config/coupons.js'
 import { formatCurrency } from '../config/format.js'
-import { PAYMENT_METHODS } from '../config/payments.js'
+import { PAYMENT_LOGOS, PAYMENT_METHODS } from '../config/payments.js'
 import { ROUTES, receiptPath } from '../config/routes.js'
 import { useOrders } from '../orders/OrdersContext.js'
 import { useProducts } from '../products/ProductsContext.js'
@@ -11,6 +12,16 @@ import { useSettings } from '../settings/SettingsContext.js'
 
 const FIELD_CLASSES =
   'mt-2 w-full rounded-xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900 shadow-sm outline-none transition placeholder:text-stone-400 focus:border-accent focus:ring-2 focus:ring-accent-ring'
+
+const PAYMENT_METHODS_WITH_DNI = [
+  'Efectivo',
+  'Yape',
+  'Plin',
+  'Mastercard',
+  'Visa',
+  'Diners Club',
+  'JCB',
+]
 
 function Cart() {
   const { items, incrementItem, decrementItem, removeItem, clearCart } =
@@ -24,6 +35,11 @@ function Cart() {
   const [metodoPago, setMetodoPago] = useState(PAYMENT_METHODS[0])
   const [nombre, setNombre] = useState(user?.name ?? '')
   const [correo, setCorreo] = useState(user?.email ?? '')
+  const [telefono, setTelefono] = useState('')
+  const [dni, setDni] = useState('')
+  const [couponCode, setCouponCode] = useState('')
+  const [appliedCoupon, setAppliedCoupon] = useState(null)
+  const [couponError, setCouponError] = useState('')
   const [error, setError] = useState('')
 
   const lines = items.flatMap((item) => {
@@ -35,17 +51,52 @@ function Cart() {
     (sum, line) => sum + line.product.precio * line.quantity,
     0,
   )
+  const descuento = appliedCoupon
+    ? (total * appliedCoupon.percent) / 100
+    : 0
+  const totalFinal = total - descuento
+
+  function handleApplyCoupon() {
+    const coupon = findCoupon(couponCode)
+
+    if (!coupon) {
+      setCouponError('Ese cupón no es válido. Prueba CAFE10, JOSE20 o BIENVENIDO15.')
+      setAppliedCoupon(null)
+      return
+    }
+
+    setAppliedCoupon(coupon)
+    setCouponCode(coupon.code)
+    setCouponError('')
+  }
+
+  function handleRemoveCoupon() {
+    setAppliedCoupon(null)
+    setCouponCode('')
+    setCouponError('')
+  }
 
   function handleCheckout() {
     const nombreCliente = nombre.trim()
     const correoCliente = correo.trim()
+    const telefonoCliente = telefono.trim()
+    const dniCliente = dni.trim()
+    const requiereDatosPago = PAYMENT_METHODS_WITH_DNI.includes(metodoPago)
 
     if (lines.length === 0) {
       return
     }
 
-    if (!nombreCliente || !correoCliente) {
-      setError('Completa el nombre y el correo para generar la boleta.')
+    if (
+      !nombreCliente ||
+      !correoCliente ||
+      (requiereDatosPago && (!telefonoCliente || !dniCliente))
+    ) {
+      setError(
+        requiereDatosPago
+          ? 'Completa nombre, correo, número de celular y DNI para generar la boleta.'
+          : 'Completa el nombre y el correo para generar la boleta.',
+      )
       return
     }
 
@@ -54,11 +105,29 @@ function Cart() {
       return
     }
 
+    if (requiereDatosPago && !/^\d{6,15}$/.test(telefonoCliente)) {
+      setError('Ingresa un número de celular válido (solo dígitos).')
+      return
+    }
+
+    if (requiereDatosPago && !/^\d{8}$/.test(dniCliente)) {
+      setError('El DNI debe tener 8 dígitos.')
+      return
+    }
+
     const order = addOrder({
-      total,
+      total: totalFinal,
+      subtotal: total,
+      descuento,
+      cupon: appliedCoupon?.code ?? null,
       currency: settings.currency,
       metodoPago,
-      cliente: { nombre: nombreCliente, correo: correoCliente },
+      cliente: {
+        nombre: nombreCliente,
+        correo: correoCliente,
+        telefono: telefonoCliente,
+        dni: dniCliente,
+      },
       items: lines.map((line) => ({
         nombre: line.product.nombre,
         precio: line.product.precio,
@@ -195,13 +264,96 @@ function Cart() {
                 {settings.currency}
               </dd>
             </div>
+            {appliedCoupon && (
+              <div className="flex items-center justify-between text-emerald-700">
+                <dt className="font-semibold">
+                  Cupón {appliedCoupon.code} ({appliedCoupon.percent}%)
+                </dt>
+                <dd className="font-semibold">
+                  -{formatCurrency(descuento, settings.currency)}
+                </dd>
+              </div>
+            )}
             <div className="flex items-center justify-between border-t border-stone-200 pt-3">
               <dt className="font-semibold text-stone-800">Total</dt>
               <dd className="text-lg font-bold text-stone-900">
-                {formatCurrency(total, settings.currency)}
+                {formatCurrency(totalFinal, settings.currency)}
               </dd>
             </div>
           </dl>
+
+          <div className="mt-5 border-t border-stone-200 pt-4">
+            <label
+              htmlFor="coupon-code"
+              className="text-sm font-bold text-stone-900"
+            >
+              Cupón de descuento
+            </label>
+            <div className="mt-2 flex gap-2">
+              <input
+                id="coupon-code"
+                type="text"
+                value={couponCode}
+                onChange={(event) => {
+                  setCouponCode(event.target.value.toUpperCase())
+                  setCouponError('')
+                }}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter') {
+                    event.preventDefault()
+                    handleApplyCoupon()
+                  }
+                }}
+                placeholder="Ej. CAFE10"
+                className="w-full rounded-xl border border-stone-300 bg-white px-4 py-2 text-sm text-stone-900 shadow-sm outline-none transition placeholder:text-stone-400 focus:border-accent focus:ring-2 focus:ring-accent-ring"
+              />
+              <button
+                type="button"
+                onClick={handleApplyCoupon}
+                className="shrink-0 rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-white transition hover:bg-accent-strong focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2"
+              >
+                Aplicar
+              </button>
+            </div>
+
+            {couponError && (
+              <p role="alert" className="mt-2 text-xs text-red-600">
+                {couponError}
+              </p>
+            )}
+
+            {appliedCoupon && (
+              <p className="mt-2 flex items-center justify-between gap-2 rounded-xl bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-700">
+                <span>
+                  Cupón {appliedCoupon.code}: {appliedCoupon.label}
+                </span>
+                <button
+                  type="button"
+                  onClick={handleRemoveCoupon}
+                  className="underline underline-offset-2 hover:text-emerald-900"
+                >
+                  Quitar
+                </button>
+              </p>
+            )}
+
+            <div className="mt-2 flex flex-wrap gap-2">
+              {COUPONS.map((coupon) => (
+                <button
+                  key={coupon.code}
+                  type="button"
+                  onClick={() => {
+                    setCouponCode(coupon.code)
+                    setAppliedCoupon(coupon)
+                    setCouponError('')
+                  }}
+                  className="rounded-full border border-stone-300 px-3 py-1 text-xs font-semibold text-stone-600 transition hover:border-accent-ring hover:text-accent-strong focus:outline-none focus:ring-2 focus:ring-accent"
+                >
+                  {coupon.code} · {coupon.label}
+                </button>
+              ))}
+            </div>
+          </div>
 
           <div className="mt-5 border-t border-stone-200 pt-4">
             <h3 className="text-sm font-bold text-stone-900">
@@ -248,6 +400,7 @@ function Cart() {
                   className={FIELD_CLASSES}
                 />
               </div>
+
             </div>
           </div>
 
@@ -255,16 +408,17 @@ function Cart() {
             <legend className="text-sm font-bold text-stone-900">
               Método de pago
             </legend>
-            <div className="mt-2 space-y-2">
+            <div className="mt-2 grid grid-cols-2 gap-2">
               {PAYMENT_METHODS.map((method) => {
                 const isSelected = metodoPago === method
+                const logo = PAYMENT_LOGOS[method]
 
                 return (
                   <label
                     key={method}
-                    className={`flex cursor-pointer items-center gap-2 rounded-xl border-2 px-3 py-2 text-sm transition ${
+                    className={`flex cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border-2 px-3 py-3 text-center transition ${
                       isSelected
-                        ? 'border-accent font-semibold text-stone-900'
+                        ? 'border-accent bg-accent-soft text-accent-strong'
                         : 'border-stone-200 text-stone-600 hover:border-stone-300'
                     }`}
                   >
@@ -274,15 +428,92 @@ function Cart() {
                       value={method}
                       checked={isSelected}
                       onChange={() => setMetodoPago(method)}
-                      style={{ accentColor: 'var(--app-accent)' }}
-                      className="size-4"
+                      className="sr-only"
                     />
-                    {method}
+                    {logo ? (
+                      <img
+                        src={logo}
+                        alt={method}
+                        className="h-8 w-auto max-w-full object-contain"
+                      />
+                    ) : (
+                      <span className="text-sm font-semibold">{method}</span>
+                    )}
                   </label>
                 )
               })}
             </div>
+
+            {PAYMENT_METHODS_WITH_DNI.includes(metodoPago) && (
+            <div className="mt-4 grid grid-cols-2 gap-3">
+              <div>
+                <label
+                  htmlFor="cliente-telefono"
+                  className="text-xs font-semibold text-stone-700"
+                >
+                  Número de celular
+                </label>
+                <input
+                  id="cliente-telefono"
+                  type="tel"
+                  inputMode="numeric"
+                  maxLength={15}
+                  value={telefono}
+                  onChange={(event) => {
+                    setTelefono(event.target.value.replace(/\D/g, ''))
+                    setError('')
+                  }}
+                  placeholder="987654321"
+                  className={FIELD_CLASSES}
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="cliente-dni"
+                  className="text-xs font-semibold text-stone-700"
+                >
+                  DNI
+                </label>
+                <input
+                  id="cliente-dni"
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={8}
+                  value={dni}
+                  onChange={(event) => {
+                    setDni(event.target.value.replace(/\D/g, ''))
+                    setError('')
+                  }}
+                  placeholder="12345678"
+                  className={FIELD_CLASSES}
+                />
+              </div>
+            </div>
+            )}
           </fieldset>
+
+          {metodoPago === 'QR' && (
+            <div className="mt-4 rounded-2xl border border-accent-ring bg-accent-soft p-4 text-center">
+              <p className="text-sm font-bold text-stone-900">
+                Escanea el código para pagar
+              </p>
+              <img
+                src="/pagos/qr-demo.svg"
+                alt="Código QR de pago de demostración"
+                className="mx-auto mt-3 size-40 rounded-xl bg-white p-2 shadow-sm"
+              />
+              <p className="mt-3 text-sm text-stone-700">
+                Total a pagar:{' '}
+                <strong className="font-bold text-stone-900">
+                  {formatCurrency(totalFinal, settings.currency)}
+                </strong>
+              </p>
+              <p className="mt-1 text-xs text-stone-500">
+                Pago de demostración; no se realiza ningún cobro real.
+              </p>
+            </div>
+          )}
 
           {error && (
             <p
