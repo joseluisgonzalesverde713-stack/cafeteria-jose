@@ -1,9 +1,9 @@
 import { useState } from 'react'
-
-const AUTHORIZED_USER = {
-  email: 'jose.revucio@cafeteriajose.com',
-  password: 'Cafeteria26!',
-}
+import { useLocation, useNavigate } from 'react-router-dom'
+import { useAuth } from '../auth/AuthContext.js'
+import { DEMO_CREDENTIALS } from '../config/env.js'
+import { ROUTES } from '../config/routes.js'
+import { useSettings } from '../settings/SettingsContext.js'
 
 const PASSWORD_LENGTH = 12
 
@@ -34,7 +34,7 @@ const SUSPICIOUS_DOMAINS = [
 const RESERVED_TLDS = ['test', 'example', 'invalid', 'localhost']
 
 const INPUT_CLASSES =
-  'mt-2 w-full rounded-xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900 shadow-sm outline-none transition placeholder:text-stone-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-200'
+  'mt-2 w-full rounded-xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900 shadow-sm outline-none transition placeholder:text-stone-400 focus:border-accent focus:ring-2 focus:ring-accent-ring'
 
 function getDomain(email) {
   return email.slice(email.lastIndexOf('@') + 1).toLowerCase()
@@ -53,12 +53,16 @@ function isSuspiciousEmail(email) {
 }
 
 function Login() {
+  const { signIn } = useAuth()
+  const { settings } = useSettings()
+  const navigate = useNavigate()
+  const location = useLocation()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
-  const [accessMessage, setAccessMessage] = useState('')
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
+
+  const redirectTo = location.state?.from?.pathname ?? ROUTES.dashboard
 
   function handleSubmit(event) {
     event.preventDefault()
@@ -92,70 +96,30 @@ function Login() {
     }
 
     if (
-      normalizedEmail !== AUTHORIZED_USER.email ||
-      password !== AUTHORIZED_USER.password
+      normalizedEmail !== DEMO_CREDENTIALS.email.toLowerCase() ||
+      password !== DEMO_CREDENTIALS.password
     ) {
       setError('Credenciales incorrectas. Verifica tu correo y contraseña.')
       return
     }
 
     setError('')
-    setAccessMessage(
-      `Bienvenido, José. Acceso concedido a CAFETERÍA JOSÉ REVUCIÓN.`,
-    )
-    setIsAuthenticated(true)
-  }
-
-  function handleLogout() {
-    setEmail('')
-    setPassword('')
-    setShowPassword(false)
-    setError('')
-    setAccessMessage('')
-    setIsAuthenticated(false)
-  }
-
-  if (isAuthenticated) {
-    return (
-      <main className="flex min-h-screen items-center justify-center bg-stone-100 px-4 py-10">
-        <section className="w-full max-w-md rounded-3xl bg-white p-8 text-center shadow-xl ring-1 ring-stone-200">
-          <span className="mx-auto flex size-16 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
-            <CheckIcon />
-          </span>
-
-          <h1 className="mt-6 text-2xl font-bold text-stone-900">
-            Acceso concedido bienvenido
-          </h1>
-          <p className="mt-3 text-sm leading-6 text-stone-600">{accessMessage}</p>
-
-          <p className="mt-4 rounded-xl bg-stone-50 px-4 py-3 text-sm font-medium text-stone-700">
-            {email}
-          </p>
-
-          <button
-            type="button"
-            onClick={handleLogout}
-            className="mt-6 w-full rounded-xl bg-orange-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
-          >
-            Cerrar sesión
-          </button>
-        </section>
-      </main>
-    )
+    signIn({ email: normalizedEmail, name: 'José' })
+    navigate(redirectTo, { replace: true })
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-linear-to-br from-amber-50 via-orange-50 to-rose-100 px-4 py-10 text-stone-800">
+    <main className="flex min-h-screen items-center justify-center bg-linear-to-br from-accent-soft via-stone-50 to-stone-200 px-4 py-10 text-stone-800">
       <div className="grid w-full max-w-5xl overflow-hidden rounded-3xl bg-white shadow-xl ring-1 ring-stone-200 md:grid-cols-2">
-        <aside className="relative hidden flex-col justify-between bg-linear-to-br from-orange-600 via-orange-500 to-amber-400 p-10 text-white md:flex">
+        <aside className="relative hidden flex-col justify-between bg-linear-to-br from-accent via-accent-strong to-accent-dark p-10 text-white md:flex">
           <div>
             <span className="flex size-14 items-center justify-center rounded-2xl bg-white/15 text-xl font-black tracking-tight ring-1 ring-white/30">
-              JR
+              {settings.shortName}
             </span>
             <h2 className="mt-8 text-3xl font-bold leading-tight">
-              Cafetería José Revución
+              {settings.appName}
             </h2>
-            <p className="mt-3 max-w-xs text-sm leading-6 text-orange-50">
+            <p className="mt-3 max-w-xs text-sm leading-6 text-white/80">
               Tus datos y tus compras, en un solo lugar.
             </p>
           </div>
@@ -166,13 +130,13 @@ function Login() {
             <FeatureItem>Datos personales protegidos</FeatureItem>
           </ul>
 
-          <p className="mt-10 text-xs font-medium uppercase tracking-[0.2em] text-orange-100">
+          <p className="mt-10 text-xs font-medium uppercase tracking-[0.2em] text-white/70">
             Sabor de siempre, servicio digital
           </p>
         </aside>
 
         <section className="p-6 sm:p-10">
-          <span className="inline-flex rounded-full bg-orange-100 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-orange-700">
+          <span className="inline-flex rounded-full bg-accent-soft px-3 py-1 text-xs font-semibold uppercase tracking-wider text-accent-dark">
             Portal de clientes
           </span>
 
@@ -237,7 +201,7 @@ function Login() {
                     showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'
                   }
                   aria-pressed={showPassword}
-                  className="absolute inset-y-0 right-0 mt-2 flex w-12 items-center justify-center rounded-r-xl text-stone-400 transition hover:text-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="absolute inset-y-0 right-0 mt-2 flex w-12 items-center justify-center rounded-r-xl text-stone-400 transition hover:text-accent focus:outline-none focus:ring-2 focus:ring-accent"
                 >
                   {showPassword ? <EyeOffIcon /> : <EyeIcon />}
                 </button>
@@ -271,10 +235,14 @@ function Login() {
 
             <button
               type="submit"
-              className="w-full rounded-xl bg-orange-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
+              className="w-full rounded-xl bg-accent px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-accent-strong focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2"
             >
               Ingresar
             </button>
+
+            <p className="text-center text-xs text-stone-500">
+              Al ingresar serás redirigido a tu panel de cliente.
+            </p>
           </form>
 
           <details className="mt-6 rounded-xl border border-dashed border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
@@ -283,12 +251,13 @@ function Login() {
             </summary>
             <p className="mt-2">
               Correo:{' '}
-              <span className="font-mono text-xs">
-                jose.revucio@cafeteriajose.com
-              </span>
+              <span className="font-mono text-xs">{DEMO_CREDENTIALS.email}</span>
             </p>
             <p className="mt-1">
-              Contraseña: <span className="font-mono text-xs">Cafeteria26!</span>
+              Contraseña:{' '}
+              <span className="font-mono text-xs">
+                {DEMO_CREDENTIALS.password}
+              </span>
             </p>
           </details>
         </section>

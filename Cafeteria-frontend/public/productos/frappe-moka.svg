@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" role="img" aria-label="Frappé de moka">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#eef6fb"/>
+      <stop offset="1" stop-color="#d2e5f2"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="300" fill="url(#bg)"/>
+  <circle cx="330" cy="66" r="40" fill="#ffffff" opacity="0.35"/>
+  <circle cx="64" cy="226" r="46" fill="#ffffff" opacity="0.3"/>
+  <path d="M212 44 186 150" stroke="#e11d48" stroke-width="9" stroke-linecap="round"/>
+  <path d="M150 118h100l-10 126a18 18 0 0 1-18 16h-44a18 18 0 0 1-18-16z" fill="#ffffff" opacity="0.6" stroke="#9cc4dd" stroke-width="4"/>
+  <path d="M158 150h84l-7 92a13 13 0 0 1-13 12h-44a13 13 0 0 1-13-12z" fill="#7b4a2c"/>
+  <path d="M158 150h84l-2 26h-80z" fill="#96603c"/>
+  <ellipse cx="200" cy="118" rx="52" ry="16" fill="#f3e2cf"/>
+  <circle cx="176" cy="104" r="19" fill="#fffaf4"/>
+  <circle cx="200" cy="94" r="23" fill="#fffaf4"/>
+  <circle cx="225" cy="105" r="18" fill="#fffaf4"/>
+  <path d="M200 74c-4 6 4 8 0 14" stroke="#e3cdb6" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <rect x="168" y="182" width="26" height="26" rx="5" fill="#ffffff" opacity="0.35" transform="rotate(-14 181 195)"/>
+  <rect x="206" y="200" width="24" height="24" rx="5" fill="#ffffff" opacity="0.3" transform="rotate(12 218 212)"/>
+</svg>
