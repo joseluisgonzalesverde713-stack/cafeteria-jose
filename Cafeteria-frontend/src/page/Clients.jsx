@@ -73,16 +73,6 @@ function Clients() {
 
   return (
     <div className="space-y-8">
-      <header>
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent-strong">
-          {settings.appName}
-        </p>
-        <h1 className="mt-2 text-3xl font-bold text-stone-900">Clientes</h1>
-        <p className="mt-1 text-sm text-stone-500">
-          Estadísticas de puntos acumulados por cliente según sus pedidos.
-        </p>
-      </header>
-
       <section aria-labelledby="clientes-resumen" className="space-y-4">
         <h2
           id="clientes-resumen"

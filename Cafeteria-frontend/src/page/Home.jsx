@@ -123,6 +123,13 @@ function Home() {
             <DataRow label="Nombre corto" value={settings.shortName} />
             <DataRow label="Moneda" value={settings.currency} />
             <DataRow label="Tema" value={tema.label} />
+            <DataRow label="Contacto" value={settings.businessEmail || '—'} />
+            <DataRow label="Teléfono" value={settings.businessPhone || '—'} />
+            <DataRow label="Dirección" value={settings.businessAddress || '—'} />
+            <DataRow
+              label="Impuesto"
+              value={`${Number(settings.taxRate) || 0}%`}
+            />
             <DataRow label="Usuario activo" value={user?.email ?? '—'} />
             <DataRow
               label="Tipo de proyecto"

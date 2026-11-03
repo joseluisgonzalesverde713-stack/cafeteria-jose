@@ -27,6 +27,9 @@ Rutas actuales declaradas en `src/App.jsx`:
 - `/` → redirige a `/dashboard` (que a su vez manda a `/login` si no hay sesión).
 - `/login` → pública; si ya hay sesión redirige a `/dashboard`.
 - `/dashboard` → privada, dentro de `AppLayout`.
+- `/reserva` → privada, dentro de `AppLayout`; formulario y lista de reservas demo.
+- `/informacion` → privada, dentro de `AppLayout`; datos del negocio, horarios y resumen.
+- `/completos` → privada, dentro de `AppLayout`; pedidos pagados o entregados.
 - `/menu` → privada, dentro de `AppLayout`.
 - `/carrito` → privada; carrito, datos del cliente, método de pago y finalización.
 - `/boleta/:id` → privada; boleta de venta imprimible del pedido.
@@ -41,14 +44,14 @@ Rutas actuales declaradas en `src/App.jsx`:
 
 - `src/config/env.js` centraliza la lectura de variables `VITE_*` con valores por defecto. Las pantallas no deben leer `import.meta.env` directamente.
 - `.env.example` documenta las variables; `.env` es local y está ignorado por git.
-- Variables: `VITE_APP_NAME`, `VITE_APP_SHORT_NAME`, `VITE_APP_CURRENCY`, `VITE_SESSION_STORAGE_KEY`, `VITE_SETTINGS_STORAGE_KEY`, `VITE_PRODUCTS_STORAGE_KEY`, `VITE_CART_STORAGE_KEY`, `VITE_ORDERS_STORAGE_KEY`, `VITE_DEMO_USER_EMAIL`, `VITE_DEMO_USER_PASSWORD`.
+- Variables: `VITE_APP_NAME`, `VITE_APP_SHORT_NAME`, `VITE_APP_CURRENCY`, `VITE_BUSINESS_EMAIL`, `VITE_BUSINESS_PHONE`, `VITE_BUSINESS_ADDRESS`, `VITE_TAX_RATE`, `VITE_SESSION_STORAGE_KEY`, `VITE_SETTINGS_STORAGE_KEY`, `VITE_PRODUCTS_STORAGE_KEY`, `VITE_CART_STORAGE_KEY`, `VITE_ORDERS_STORAGE_KEY`, `VITE_RESERVATIONS_STORAGE_KEY`, `VITE_DEMO_USER_EMAIL`, `VITE_DEMO_USER_PASSWORD`.
 - Los valores de `.env.example` son datos de prueba, nunca credenciales reales.
 - El tema de Tailwind v4 se configura en `src/index.css` con `@theme` (paletas `brand` y `coffee`, fuente `sans`). No crear `tailwind.config.js`.
 
 La configuración es funcional, no solo informativa:
 
 - `src/settings/SettingsProvider.jsx` mantiene los ajustes en `localStorage` (`APP_CONFIG.settingsStorageKey`) y los expone con `useSettings`.
-- Ajustes editables: nombre de la app, nombre corto, moneda y color de acento (`src/config/theme.js`).
+- Ajustes editables: nombre de la app, nombre corto, moneda, correo, teléfono, dirección, impuesto (%) y color de acento (`src/config/theme.js`). El impuesto se suma al total del carrito y queda guardado en el pedido (`impuesto`, `impuestoPorcentaje`).
 - El color se aplica en tiempo de ejecución escribiendo variables CSS (`--app-accent*`) en `document.documentElement`; los componentes usan las utilidades `accent`, `accent-strong`, `accent-dark`, `accent-soft` y `accent-ring`.
 - No uses clases `orange-*` en pantallas nuevas: usa los tokens `accent-*` para respetar el tema elegido.
 - La moneda se formatea con `formatCurrency` de `src/config/format.js`; guarda precios como números, no como texto.
@@ -98,12 +101,13 @@ There is no test runner and no typecheck script. Do not invent one; verify chang
 - `src/products/` holds `ProductsContext.js` (context + `useProducts`) and `ProductsProvider.jsx` (editable catalog persisted in `localStorage`).
 - `src/cart/` holds `CartContext.js` (context + `useCart`) and `CartProvider.jsx` (cart persisted in `localStorage`).
 - `src/orders/` holds `OrdersContext.js` (context + `useOrders`) and `OrdersProvider.jsx` (demo orders persisted in `localStorage`).
+- `src/reservations/` holds `ReservationsContext.js` (context + `useReservations`) and `ReservationsProvider.jsx` (demo reservations persisted in `localStorage`).
 - `src/components/ProductEditor.jsx` is the product edit modal.
 - `src/components/OrderEditor.jsx` is the order edit modal (cliente, pago y estado).
 - `public/productos/` holds the SVG product illustrations served from `/productos/...`.
 - `src/routes/` holds `ProtectedRoute.jsx` and `PublicOnlyRoute.jsx`.
 - `src/layout/AppLayout.jsx` renders the private header, `NavLink`s and `<Outlet />`.
-- `src/page/` holds screens: `Login.jsx`, `Dashboard.jsx`, `Menu.jsx`, `Cart.jsx`, `Receipt.jsx`, `Settings.jsx`.
+- `src/page/` holds screens: `Login.jsx`, `Dashboard.jsx`, `Home.jsx`, `Clients.jsx`, `Reserva.jsx`, `Informacion.jsx`, `Completos.jsx`, `Menu.jsx`, `Cart.jsx`, `Receipt.jsx`, `Settings.jsx`.
 - `src/assets/` images are imported as ES modules (e.g. `import heroImg from './assets/hero.png'`).
 - `public/` is served from `/` (e.g. `/icons.svg`, `/favicon.svg`).
 - `index.html` is the Vite entry point.

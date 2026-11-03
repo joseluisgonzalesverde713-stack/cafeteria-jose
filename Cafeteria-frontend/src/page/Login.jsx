@@ -5,51 +5,26 @@ import { DEMO_CREDENTIALS } from '../config/env.js'
 import { ROUTES } from '../config/routes.js'
 import { useSettings } from '../settings/SettingsContext.js'
 
-const PASSWORD_LENGTH = 12
-
 const EMAIL_PATTERN =
   /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?)*\.[a-zA-Z]{2,}$/
-
-const SUSPICIOUS_DOMAINS = [
-  '10minutemail.com',
-  'dispostable.com',
-  'fakeinbox.com',
-  'getnada.com',
-  'guerrillamail.com',
-  'maildrop.cc',
-  'mailinator.com',
-  'sharklasers.com',
-  'temp-mail.org',
-  'tempmail.com',
-  'trashmail.com',
-  'yopmail.com',
-  'example.com',
-  'example.org',
-  'example.net',
-  'test.com',
-  'fake.com',
-  'correo-falso.com',
-]
-
-const RESERVED_TLDS = ['test', 'example', 'invalid', 'localhost']
 
 const INPUT_CLASSES =
   'mt-2 w-full rounded-xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900 shadow-sm outline-none transition placeholder:text-stone-400 focus:border-accent focus:ring-2 focus:ring-accent-ring'
 
-function getDomain(email) {
-  return email.slice(email.lastIndexOf('@') + 1).toLowerCase()
-}
+function nameFromEmail(email) {
+  const local = email
+    .split('@')[0]
+    .replace(/[._-]+/g, ' ')
+    .trim()
 
-function isSuspiciousEmail(email) {
-  const domain = getDomain(email)
-  const tld = domain.slice(domain.lastIndexOf('.') + 1)
+  if (!local) {
+    return 'Cliente'
+  }
 
-  return (
-    RESERVED_TLDS.includes(tld) ||
-    SUSPICIOUS_DOMAINS.some(
-      (blocked) => domain === blocked || domain.endsWith(`.${blocked}`),
-    )
-  )
+  return local
+    .split(' ')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ')
 }
 
 function Login() {
@@ -81,30 +56,8 @@ function Login() {
       return
     }
 
-    if (isSuspiciousEmail(normalizedEmail)) {
-      setError(
-        'No se permite el ingreso con correos falsos o dominios sospechosos.',
-      )
-      return
-    }
-
-    if (password.length !== PASSWORD_LENGTH) {
-      setError(
-        `La contraseña debe tener exactamente ${PASSWORD_LENGTH} caracteres.`,
-      )
-      return
-    }
-
-    if (
-      normalizedEmail !== DEMO_CREDENTIALS.email.toLowerCase() ||
-      password !== DEMO_CREDENTIALS.password
-    ) {
-      setError('Credenciales incorrectas. Verifica tu correo y contraseña.')
-      return
-    }
-
     setError('')
-    signIn({ email: normalizedEmail, name: 'José' })
+    signIn({ email: normalizedEmail, name: nameFromEmail(normalizedEmail) })
     navigate(redirectTo, { replace: true })
   }
 
@@ -122,6 +75,11 @@ function Login() {
             <p className="mt-3 max-w-xs text-sm leading-6 text-white/80">
               Café y bebidas frías en un solo lugar.
             </p>
+            <img
+              src="/cafeteria/hero.svg"
+              alt="Ilustración de una taza de café con un croissant"
+              className="mx-auto mt-6 w-full max-w-[260px] drop-shadow-xl"
+            />
           </div>
 
           <ul className="mt-10 space-y-4 text-sm font-medium">
@@ -144,8 +102,8 @@ function Login() {
             Inicia sesión
           </h1>
           <p className="mt-2 text-sm leading-6 text-stone-600">
-            Ingresa con el correo registrado en la cafetería para consultar tus
-            compras.
+            Ingresa con cualquier correo y contraseña para probar el portal de
+            clientes.
           </p>
 
           <form onSubmit={handleSubmit} noValidate className="mt-8 space-y-5">
@@ -206,20 +164,8 @@ function Login() {
                   {showPassword ? <EyeOffIcon /> : <EyeIcon />}
                 </button>
               </div>
-              <p
-                id="password-help"
-                className="mt-2 flex items-center justify-between text-xs text-stone-500"
-              >
-                <span>Debe tener exactamente {PASSWORD_LENGTH} caracteres.</span>
-                <span
-                  className={
-                    password.length === PASSWORD_LENGTH
-                      ? 'font-semibold text-emerald-600'
-                      : 'font-medium text-stone-500'
-                  }
-                >
-                  {password.length}/{PASSWORD_LENGTH}
-                </span>
+              <p id="password-help" className="mt-2 text-xs text-stone-500">
+                Puedes usar cualquier contraseña en esta demostración.
               </p>
             </div>
 

@@ -44,7 +44,7 @@ function AppLayout() {
             aria-label="Navegación principal"
             className="flex flex-wrap items-center gap-2"
           >
-            {NAV_LINKS.map((link) => (
+            {NAV_LINKS.filter((link) => link.to !== ROUTES.settings).map((link) => (
               <NavLink key={link.to} to={link.to} className={navLinkClass}>
                 {({ isActive }) => (
                   <>
@@ -66,13 +66,18 @@ function AppLayout() {
             ))}
           </nav>
 
-          <button
-            type="button"
-            onClick={handleLogout}
-            className="ml-auto rounded-lg border border-stone-300 px-4 py-2 text-sm font-semibold text-stone-700 transition hover:border-accent-ring hover:text-accent-strong focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2"
-          >
-            🚪 Cerrar sesión
-          </button>
+          <div className="ml-auto flex items-center gap-2">
+            <NavLink to={ROUTES.settings} className={navLinkClass}>
+              ⚙️ Configuración
+            </NavLink>
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="rounded-lg border border-stone-300 px-4 py-2 text-sm font-semibold text-stone-700 transition hover:border-accent-ring hover:text-accent-strong focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2"
+            >
+              🚪 Cerrar sesión
+            </button>
+          </div>
         </div>
       </header>
 

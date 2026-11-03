@@ -33,6 +33,8 @@ function Receipt() {
   const items = order.items ?? []
   const currency = order.currency ?? settings.currency
   const descuento = Number(order.descuento) || 0
+  const impuesto = Number(order.impuesto) || 0
+  const impuestoPorcentaje = Number(order.impuestoPorcentaje) || 0
   const subtotal =
     Number(order.subtotal) ||
     items.reduce(
@@ -52,6 +54,21 @@ function Receipt() {
               Boleta de venta
             </h1>
             <p className="text-xs text-stone-500">Documento de prueba</p>
+            {settings.businessAddress && (
+              <p className="mt-2 text-xs text-stone-500">
+                {settings.businessAddress}
+              </p>
+            )}
+            {settings.businessPhone && (
+              <p className="text-xs text-stone-500">
+                Tel: {settings.businessPhone}
+              </p>
+            )}
+            {settings.businessEmail && (
+              <p className="text-xs text-stone-500">
+                {settings.businessEmail}
+              </p>
+            )}
           </div>
 
           <div className="text-right text-sm">
@@ -135,16 +152,29 @@ function Receipt() {
 
         <div className="mt-4 flex justify-end border-t border-dashed border-stone-300 pt-4">
           <div className="text-right">
-            {descuento > 0 && (
+            {(descuento > 0 || impuesto > 0) && (
               <div className="mb-2 space-y-1 text-sm">
                 <p className="flex justify-between gap-8 text-stone-600">
                   <span>Subtotal</span>
                   <span>{formatCurrency(subtotal, currency)}</span>
                 </p>
-                <p className="flex justify-between gap-8 text-emerald-700">
-                  <span>Cupón {order.cupon ?? 'descuento'}</span>
-                  <span>-{formatCurrency(descuento, currency)}</span>
-                </p>
+                {descuento > 0 && (
+                  <p className="flex justify-between gap-8 text-emerald-700">
+                    <span>Cupón {order.cupon ?? 'descuento'}</span>
+                    <span>-{formatCurrency(descuento, currency)}</span>
+                  </p>
+                )}
+                {impuesto > 0 && (
+                  <p className="flex justify-between gap-8 text-stone-600">
+                    <span>
+                      Impuesto
+                      {impuestoPorcentaje > 0
+                        ? ` (${impuestoPorcentaje}%)`
+                        : ''}
+                    </span>
+                    <span>{formatCurrency(impuesto, currency)}</span>
+                  </p>
+                )}
               </div>
             )}
             <p className="text-xs font-semibold uppercase tracking-wider text-stone-500">

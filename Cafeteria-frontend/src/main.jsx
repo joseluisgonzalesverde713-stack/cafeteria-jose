@@ -7,6 +7,7 @@ import AuthProvider from './auth/AuthProvider.jsx'
 import CartProvider from './cart/CartProvider.jsx'
 import OrdersProvider from './orders/OrdersProvider.jsx'
 import ProductsProvider from './products/ProductsProvider.jsx'
+import ReservationsProvider from './reservations/ReservationsProvider.jsx'
 import SettingsProvider from './settings/SettingsProvider.jsx'
 
 createRoot(document.getElementById('root')).render(
@@ -15,11 +16,13 @@ createRoot(document.getElementById('root')).render(
       <SettingsProvider>
         <ProductsProvider>
           <OrdersProvider>
-            <CartProvider>
-              <AuthProvider>
-                <App />
-              </AuthProvider>
-            </CartProvider>
+            <ReservationsProvider>
+              <CartProvider>
+                <AuthProvider>
+                  <App />
+                </AuthProvider>
+              </CartProvider>
+            </ReservationsProvider>
           </OrdersProvider>
         </ProductsProvider>
       </SettingsProvider>

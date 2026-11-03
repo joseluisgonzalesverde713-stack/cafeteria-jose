@@ -54,7 +54,10 @@ function Cart() {
   const descuento = appliedCoupon
     ? (total * appliedCoupon.percent) / 100
     : 0
-  const totalFinal = total - descuento
+  const impuestoPorcentaje = Number(settings.taxRate) || 0
+  const baseImponible = total - descuento
+  const impuesto = (baseImponible * impuestoPorcentaje) / 100
+  const totalFinal = baseImponible + impuesto
 
   function handleApplyCoupon() {
     const coupon = findCoupon(couponCode)
@@ -119,6 +122,8 @@ function Cart() {
       total: totalFinal,
       subtotal: total,
       descuento,
+      impuesto,
+      impuestoPorcentaje,
       cupon: appliedCoupon?.code ?? null,
       currency: settings.currency,
       metodoPago,
@@ -271,6 +276,16 @@ function Cart() {
                 </dt>
                 <dd className="font-semibold">
                   -{formatCurrency(descuento, settings.currency)}
+                </dd>
+              </div>
+            )}
+            {impuesto > 0 && (
+              <div className="flex items-center justify-between">
+                <dt className="text-stone-500">
+                  Impuesto ({impuestoPorcentaje}%)
+                </dt>
+                <dd className="font-semibold text-stone-800">
+                  {formatCurrency(impuesto, settings.currency)}
                 </dd>
               </div>
             )}

@@ -17,6 +17,9 @@ function Settings() {
   const [message, setMessage] = useState('')
 
   const previewTheme = getTheme(draft.theme)
+  const previewTaxRate = Number(draft.taxRate) || 0
+  const previewPrice = 35
+  const previewTax = (previewPrice * previewTaxRate) / 100
 
   function updateField(field, value) {
     setDraft((current) => ({ ...current, [field]: value }))
@@ -29,6 +32,10 @@ function Settings() {
 
     const appName = draft.appName.trim()
     const shortName = draft.shortName.trim()
+    const businessEmail = (draft.businessEmail ?? '').trim()
+    const businessPhone = (draft.businessPhone ?? '').trim()
+    const businessAddress = (draft.businessAddress ?? '').trim()
+    const taxRate = Number(draft.taxRate) || 0
 
     if (!appName || !shortName) {
       setError('El nombre y el nombre corto son obligatorios.')
@@ -36,7 +43,27 @@ function Settings() {
       return
     }
 
-    const nextSettings = { ...draft, appName, shortName }
+    if (businessEmail && !businessEmail.includes('@')) {
+      setError('Ingresa un correo de contacto válido.')
+      setMessage('')
+      return
+    }
+
+    if (taxRate < 0 || taxRate > 100) {
+      setError('El impuesto debe ser un número entre 0 y 100.')
+      setMessage('')
+      return
+    }
+
+    const nextSettings = {
+      ...draft,
+      appName,
+      shortName,
+      businessEmail,
+      businessPhone,
+      businessAddress,
+      taxRate,
+    }
     saveSettings(nextSettings)
     setDraft(nextSettings)
     setError('')
@@ -120,6 +147,93 @@ function Settings() {
             <p className="mt-2 text-xs text-stone-500">
               Se usa para formatear los precios del menú y los pedidos.
             </p>
+          </div>
+
+          <div className="space-y-5 border-t border-stone-200 pt-5">
+            <h3 className="text-sm font-bold text-stone-900">
+              Información del negocio
+            </h3>
+
+            <div className="grid gap-5 sm:grid-cols-2">
+              <div>
+                <label
+                  htmlFor="businessEmail"
+                  className="text-sm font-semibold text-stone-800"
+                >
+                  Correo de contacto
+                </label>
+                <input
+                  id="businessEmail"
+                  type="email"
+                  value={draft.businessEmail}
+                  onChange={(event) =>
+                    updateField('businessEmail', event.target.value)
+                  }
+                  placeholder="contacto@ejemplo.com"
+                  className={FIELD_CLASSES}
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="businessPhone"
+                  className="text-sm font-semibold text-stone-800"
+                >
+                  Teléfono
+                </label>
+                <input
+                  id="businessPhone"
+                  type="tel"
+                  value={draft.businessPhone}
+                  onChange={(event) =>
+                    updateField('businessPhone', event.target.value)
+                  }
+                  placeholder="+52 55 1234 5678"
+                  className={FIELD_CLASSES}
+                />
+              </div>
+            </div>
+
+            <div>
+              <label
+                htmlFor="businessAddress"
+                className="text-sm font-semibold text-stone-800"
+              >
+                Dirección
+              </label>
+              <input
+                id="businessAddress"
+                type="text"
+                value={draft.businessAddress}
+                onChange={(event) =>
+                  updateField('businessAddress', event.target.value)
+                }
+                placeholder="Calle, número, ciudad"
+                className={FIELD_CLASSES}
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="taxRate"
+                className="text-sm font-semibold text-stone-800"
+              >
+                Impuesto (%)
+              </label>
+              <input
+                id="taxRate"
+                type="number"
+                min="0"
+                max="100"
+                step="0.1"
+                value={draft.taxRate}
+                onChange={(event) => updateField('taxRate', event.target.value)}
+                className={FIELD_CLASSES}
+              />
+              <p className="mt-2 text-xs text-stone-500">
+                Se suma al total del carrito y se muestra en la boleta.
+              </p>
+            </div>
           </div>
 
           <fieldset>
@@ -224,9 +338,16 @@ function Settings() {
                 className="text-sm font-semibold"
                 style={{ color: previewTheme.dark }}
               >
-                {formatCurrency(35, draft.currency)}
+                {formatCurrency(previewPrice, draft.currency)}
               </span>
             </div>
+
+            {previewTax > 0 && (
+              <div className="mt-2 flex items-center justify-between px-3 text-xs text-stone-500">
+                <span>Impuesto ({previewTaxRate}%)</span>
+                <span>{formatCurrency(previewTax, draft.currency)}</span>
+              </div>
+            )}
 
             <span
               className="mt-4 inline-flex rounded-lg px-4 py-2 text-xs font-semibold text-white"
@@ -246,6 +367,28 @@ function Settings() {
               <dd className="font-mono text-xs text-stone-800">
                 {DEMO_CREDENTIALS.email}
               </dd>
+            </div>
+            <div className="flex items-center justify-between gap-2">
+              <dt className="text-stone-500">Contacto</dt>
+              <dd className="truncate text-xs font-semibold text-stone-800">
+                {draft.businessEmail || '—'}
+              </dd>
+            </div>
+            <div className="flex items-center justify-between gap-2">
+              <dt className="text-stone-500">Teléfono</dt>
+              <dd className="text-xs font-semibold text-stone-800">
+                {draft.businessPhone || '—'}
+              </dd>
+            </div>
+            <div className="flex items-center justify-between gap-2">
+              <dt className="text-stone-500">Dirección</dt>
+              <dd className="text-right text-xs font-semibold text-stone-800">
+                {draft.businessAddress || '—'}
+              </dd>
+            </div>
+            <div className="flex items-center justify-between gap-2">
+              <dt className="text-stone-500">Impuesto</dt>
+              <dd className="font-semibold text-stone-800">{previewTaxRate}%</dd>
             </div>
           </dl>
         </article>

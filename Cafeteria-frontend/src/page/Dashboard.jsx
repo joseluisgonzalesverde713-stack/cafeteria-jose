@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import OrderEditor from '../components/OrderEditor.jsx'
+import SystemStatus from '../components/SystemStatus.jsx'
 import { formatCurrency } from '../config/format.js'
 import { receiptPath } from '../config/routes.js'
 import { useOrders } from '../orders/OrdersContext.js'
@@ -35,17 +36,177 @@ function getFavoriteProduct(orders) {
   return favorito ?? 'Sin compras'
 }
 
+function countActiveClients(orders) {
+  const clients = new Set()
+
+  for (const order of orders) {
+    const cliente = order.cliente ?? {}
+    const key = cliente.correo || cliente.nombre
+
+    if (key) {
+      clients.add(key)
+    }
+  }
+
+  return clients.size
+}
+
+function parseOrderDate(fecha) {
+  if (!fecha) {
+    return null
+  }
+
+  const text = String(fecha).trim()
+  const slash = text.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/)
+
+  if (slash) {
+    const [, day, month, year] = slash
+    return new Date(Number(year), Number(month) - 1, Number(day))
+  }
+
+  const iso = text.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/)
+
+  if (iso) {
+    const [, year, month, day] = iso
+    return new Date(Number(year), Number(month) - 1, Number(day))
+  }
+
+  const parsed = new Date(text)
+
+  return Number.isNaN(parsed.getTime()) ? null : parsed
+}
+
+function formatDate(date) {
+  return date.toLocaleDateString('es-MX', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  })
+}
+
+function getSalesPeriod(orders) {
+  let first = null
+  let last = null
+
+  for (const order of orders) {
+    const date = parseOrderDate(order.fecha)
+
+    if (!date) {
+      continue
+    }
+
+    if (!first || date < first) {
+      first = date
+    }
+
+    if (!last || date > last) {
+      last = date
+    }
+  }
+
+  if (!first) {
+    return { label: 'Sin ventas', detail: 'Aún no hay pedidos' }
+  }
+
+  const label =
+    first.getTime() === last.getTime()
+      ? formatDate(first)
+      : `${formatDate(first)} – ${formatDate(last)}`
+
+  return { label, detail: 'Desde el primer pedido hasta el último' }
+}
+
+function getSalesByPeriod(orders) {
+  const groups = new Map()
+
+  for (const order of orders) {
+    const fecha = order.fecha ?? 'Sin fecha'
+    const entry = groups.get(fecha) ?? {
+      fecha,
+      date: parseOrderDate(fecha),
+      pedidos: 0,
+      total: 0,
+    }
+
+    entry.pedidos += 1
+    entry.total += Number(order.total || 0)
+    groups.set(fecha, entry)
+  }
+
+  return [...groups.values()].sort((a, b) => {
+    if (a.date && b.date) {
+      return a.date - b.date
+    }
+
+    if (a.date) {
+      return -1
+    }
+
+    if (b.date) {
+      return 1
+    }
+
+    return a.fecha.localeCompare(b.fecha)
+  })
+}
+
+function getPaymentBreakdown(orders) {
+  const groups = new Map()
+
+  for (const order of orders) {
+    const metodo = order.metodoPago ?? 'Sin definir'
+    const entry = groups.get(metodo) ?? { metodo, pedidos: 0, total: 0 }
+
+    entry.pedidos += 1
+    entry.total += Number(order.total || 0)
+    groups.set(metodo, entry)
+  }
+
+  const list = [...groups.values()].sort((a, b) => b.total - a.total)
+  const totalGeneral = list.reduce((sum, entry) => sum + entry.total, 0)
+
+  return list.map((entry) => ({
+    ...entry,
+    porcentaje:
+      totalGeneral > 0 ? Math.round((entry.total / totalGeneral) * 100) : 0,
+  }))
+}
+
 function Dashboard() {
   const { settings } = useSettings()
   const { orders, updateOrder, deleteOrder } = useOrders()
   const [editingOrder, setEditingOrder] = useState(null)
   const [deletingOrder, setDeletingOrder] = useState(null)
   const pedidos = [...orders].reverse()
-  const puntos = Math.round(
-    orders.reduce((total, order) => total + Number(order.total || 0), 0),
+  const ventasTotales = orders.reduce(
+    (total, order) => total + Number(order.total || 0),
+    0,
   )
+  const puntos = Math.round(ventasTotales)
+  const clientesActivos = countActiveClients(orders)
+  const ventasPorPeriodo = getSalesByPeriod(orders)
+  const metodos = getPaymentBreakdown(orders)
+  const metodoMasUsado = [...metodos].sort((a, b) => b.pedidos - a.pedidos)[0]
+  const periodo = getSalesPeriod(orders)
 
   const resumen = [
+    {
+      label: 'Ventas totales',
+      value: formatCurrency(ventasTotales, settings.currency),
+      detail: 'Suma de todos tus pedidos',
+    },
+    {
+      label: 'Método más usado',
+      value: metodoMasUsado?.metodo ?? 'Sin datos',
+      detail: metodoMasUsado
+        ? `${metodoMasUsado.pedidos} pedido${metodoMasUsado.pedidos === 1 ? '' : 's'}`
+        : 'Aún no hay pedidos',
+    },
+    {
+      label: 'Periodo de ventas',
+      value: periodo.label,
+      detail: periodo.detail,
+    },
     {
       label: 'Pedidos registrados',
       value: String(orders.length),
@@ -70,7 +231,7 @@ function Dashboard() {
           Resumen
         </h2>
 
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {resumen.map((item) => (
             <article
               key={item.label}
@@ -85,6 +246,132 @@ function Dashboard() {
               <p className="mt-1 text-xs text-stone-400">{item.detail}</p>
             </article>
           ))}
+        </div>
+      </section>
+
+      <section aria-labelledby="estado-sistema-titulo" className="space-y-4">
+        <h2
+          id="estado-sistema-titulo"
+          className="text-lg font-bold text-stone-900"
+        >
+          Estado del sistema
+        </h2>
+        <SystemStatus usuariosActivos={clientesActivos} />
+      </section>
+
+      <section aria-labelledby="periodo-titulo" className="space-y-4">
+        <h2 id="periodo-titulo" className="text-lg font-bold text-stone-900">
+          Ventas por periodo
+        </h2>
+
+        <div className="overflow-x-auto rounded-2xl bg-white shadow-sm ring-1 ring-stone-200">
+          <table className="w-full text-left text-sm">
+            <thead className="bg-stone-50 text-xs uppercase tracking-wider text-stone-500">
+              <tr>
+                <th scope="col" className="px-5 py-3 font-semibold">
+                  Fecha
+                </th>
+                <th scope="col" className="px-5 py-3 font-semibold">
+                  Pedidos
+                </th>
+                <th scope="col" className="px-5 py-3 font-semibold">
+                  Ventas
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-stone-100">
+              {ventasPorPeriodo.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={3}
+                    className="px-5 py-4 text-center text-stone-400"
+                  >
+                    Aún no hay ventas registradas.
+                  </td>
+                </tr>
+              ) : (
+                ventasPorPeriodo.map((item) => (
+                  <tr key={item.fecha}>
+                    <td className="px-5 py-4 font-medium text-stone-700">
+                      {item.fecha}
+                    </td>
+                    <td className="px-5 py-4 text-stone-600">
+                      {item.pedidos}
+                    </td>
+                    <td className="px-5 py-4 font-semibold text-stone-900">
+                      {formatCurrency(item.total, settings.currency)}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section aria-labelledby="metodos-titulo" className="space-y-4">
+        <h2 id="metodos-titulo" className="text-lg font-bold text-stone-900">
+          Desglose por método de pago
+        </h2>
+
+        <div className="overflow-x-auto rounded-2xl bg-white shadow-sm ring-1 ring-stone-200">
+          <table className="w-full text-left text-sm">
+            <thead className="bg-stone-50 text-xs uppercase tracking-wider text-stone-500">
+              <tr>
+                <th scope="col" className="px-5 py-3 font-semibold">
+                  Método
+                </th>
+                <th scope="col" className="px-5 py-3 font-semibold">
+                  Pedidos
+                </th>
+                <th scope="col" className="px-5 py-3 font-semibold">
+                  Ventas
+                </th>
+                <th scope="col" className="px-5 py-3 font-semibold">
+                  Participación
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-stone-100">
+              {metodos.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={4}
+                    className="px-5 py-4 text-center text-stone-400"
+                  >
+                    Aún no hay métodos de pago registrados.
+                  </td>
+                </tr>
+              ) : (
+                metodos.map((item) => (
+                  <tr key={item.metodo}>
+                    <td className="px-5 py-4 font-medium text-stone-700">
+                      {item.metodo}
+                    </td>
+                    <td className="px-5 py-4 text-stone-600">
+                      {item.pedidos}
+                    </td>
+                    <td className="px-5 py-4 font-semibold text-stone-900">
+                      {formatCurrency(item.total, settings.currency)}
+                    </td>
+                    <td className="px-5 py-4">
+                      <div className="flex items-center gap-2">
+                        <div className="h-2 w-24 overflow-hidden rounded-full bg-stone-100">
+                          <div
+                            className="h-full rounded-full bg-accent"
+                            style={{ width: `${item.porcentaje}%` }}
+                          />
+                        </div>
+                        <span className="text-xs font-semibold text-stone-500">
+                          {item.porcentaje}%
+                        </span>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
       </section>
 
