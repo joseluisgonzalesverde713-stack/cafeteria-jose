@@ -75,6 +75,30 @@ describe('US-recuperación: solicitud del correo', () => {
     expect(correo.enlace).toBe(resultado.enlace)
     expect(correo.instrucciones).toMatch(/restablecer/i)
   })
+
+  it('muestra un error si no puede persistir la recuperación', () => {
+    vi.stubGlobal('window', {
+      localStorage: {
+        getItem: (key) =>
+          key === 'cafeteria-jose:usuarios-registrados'
+            ? JSON.stringify([
+                {
+                  email: 'ana.lopez@cafeteriajose.com',
+                  clave: 'Cafeteria26!',
+                },
+              ])
+            : null,
+        setItem: () => {
+          throw new Error('storage unavailable')
+        },
+      },
+    })
+
+    const resultado = solicitarRecuperacion('ana.lopez@cafeteriajose.com')
+
+    expect(resultado.ok).toBe(false)
+    expect(resultado.error).toMatch(/preparar el enlace/i)
+  })
 })
 
 describe('US-recuperación: expiración del enlace', () => {

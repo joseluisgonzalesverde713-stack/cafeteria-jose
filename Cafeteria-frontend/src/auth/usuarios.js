@@ -172,9 +172,9 @@ export function crearTokenRecuperacion(
   const tokens = leerJson(TOKENS_KEY, {})
 
   tokens[token] = { email: normalizarCorreo(correo), expiraEn }
-  escribirJson(TOKENS_KEY, tokens)
+  const guardado = escribirJson(TOKENS_KEY, tokens)
 
-  return { token, expiraEn }
+  return { token, expiraEn, guardado }
 }
 
 export function esTokenVigente(registro, ahora = Date.now()) {
