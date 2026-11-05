@@ -5,12 +5,15 @@ import Cart from './page/Cart.jsx'
 import Clients from './page/Clients.jsx'
 import Completos from './page/Completos.jsx'
 import Dashboard from './page/Dashboard.jsx'
+import ForgotPassword from './page/ForgotPassword.jsx'
 import Home from './page/Home.jsx'
 import Informacion from './page/Informacion.jsx'
 import Login from './page/Login.jsx'
 import Menu from './page/Menu.jsx'
 import Receipt from './page/Receipt.jsx'
+import Register from './page/Register.jsx'
 import Reserva from './page/Reserva.jsx'
+import ResetPassword from './page/ResetPassword.jsx'
 import Settings from './page/Settings.jsx'
 import ProtectedRoute from './routes/ProtectedRoute.jsx'
 import PublicOnlyRoute from './routes/PublicOnlyRoute.jsx'
@@ -22,6 +25,9 @@ function App() {
 
       <Route element={<PublicOnlyRoute />}>
         <Route path={ROUTES.login} element={<Login />} />
+        <Route path={ROUTES.registro} element={<Register />} />
+        <Route path={ROUTES.recuperar} element={<ForgotPassword />} />
+        <Route path={ROUTES.restablecer} element={<ResetPassword />} />
       </Route>
 
       <Route element={<ProtectedRoute />}>

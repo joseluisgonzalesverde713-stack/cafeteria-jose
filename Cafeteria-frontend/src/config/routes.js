@@ -1,6 +1,9 @@
 export const ROUTES = {
   home: '/',
   login: '/login',
+  registro: '/registro',
+  recuperar: '/recuperar',
+  restablecer: '/restablecer/:token',
   inicio: '/inicio',
   dashboard: '/dashboard',
   clients: '/clientes',
@@ -15,6 +18,10 @@ export const ROUTES = {
 
 export function receiptPath(id) {
   return `/boleta/${id}`
+}
+
+export function resetPath(token) {
+  return `/restablecer/${token}`
 }
 
 export const NAV_LINKS = [

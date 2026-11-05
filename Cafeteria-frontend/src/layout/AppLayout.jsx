@@ -1,4 +1,4 @@
-import { NavLink, Outlet, useNavigate } from 'react-router-dom'
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext.js'
 import { useCart } from '../cart/CartContext.js'
 import { NAV_LINKS, ROUTES } from '../config/routes.js'
@@ -18,6 +18,8 @@ function AppLayout() {
   const { count } = useCart()
   const { settings } = useSettings()
   const navigate = useNavigate()
+  const location = useLocation()
+  const successMessage = location.state?.success
 
   function handleLogout() {
     signOut()
@@ -82,6 +84,14 @@ function AppLayout() {
       </header>
 
       <main className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6">
+        {successMessage && (
+          <div
+            role="status"
+            className="mb-6 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-800"
+          >
+            {successMessage}
+          </div>
+        )}
         <Outlet />
       </main>
     </div>

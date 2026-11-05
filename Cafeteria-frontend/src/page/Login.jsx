@@ -1,6 +1,8 @@
+/* eslint-disable react-refresh/only-export-components */
 import { useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext.js'
+import { verificarCredenciales } from '../auth/usuarios.js'
 import { DEMO_CREDENTIALS } from '../config/env.js'
 import { ROUTES } from '../config/routes.js'
 import { useSettings } from '../settings/SettingsContext.js'
@@ -10,6 +12,102 @@ const EMAIL_PATTERN =
 
 const INPUT_CLASSES =
   'mt-2 w-full rounded-xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900 shadow-sm outline-none transition placeholder:text-stone-400 focus:border-accent focus:ring-2 focus:ring-accent-ring'
+
+const DOMINIOS_SOSPECHOSOS = [
+  'example.com',
+  'example.org',
+  'example.net',
+  'test.com',
+  'fake.com',
+  'correo.com',
+  'mailinator.com',
+  'yopmail.com',
+  'tempmail.com',
+  'temp-mail.org',
+  'guerrillamail.com',
+  '10minutemail.com',
+  'trashmail.com',
+  'getnada.com',
+  'maildrop.cc',
+]
+
+export function normalizarCorreo(correo) {
+  return String(correo ?? '').trim().toLowerCase()
+}
+
+function obtenerDominio(correo) {
+  return normalizarCorreo(correo).split('@')[1] ?? ''
+}
+
+export function esDominioSospechoso(correo) {
+  const dominio = obtenerDominio(correo)
+
+  return DOMINIOS_SOSPECHOSOS.some(
+    (sospechoso) => dominio === sospechoso || dominio.endsWith(`.${sospechoso}`),
+  )
+}
+
+export function esCorreoValido(correo) {
+  const normalizado = normalizarCorreo(correo)
+
+  return EMAIL_PATTERN.test(normalizado) && !esDominioSospechoso(normalizado)
+}
+
+export function esClaveValida(clave) {
+  return typeof clave === 'string' && clave.length >= 12
+}
+
+export function validarCredenciales({ correo, clave }) {
+  const email = normalizarCorreo(correo)
+
+  if (!email || !clave) {
+    return {
+      ok: false,
+      error: 'Completa el correo y la contraseña para continuar.',
+    }
+  }
+
+  if (!EMAIL_PATTERN.test(email)) {
+    return {
+      ok: false,
+      error:
+        'El correo no tiene una sintaxis válida. Ejemplo: nombre@dominio.com',
+    }
+  }
+
+  if (esDominioSospechoso(email)) {
+    return {
+      ok: false,
+      error:
+        'No se permite el ingreso con correos falsos o dominios sospechosos.',
+    }
+  }
+
+  if (!esClaveValida(clave)) {
+    return {
+      ok: false,
+      error: 'La contraseña debe tener al menos 12 caracteres.',
+    }
+  }
+
+  const usuario = verificarCredenciales(email, clave)
+
+  if (!usuario) {
+    return {
+      ok: false,
+      error: 'Correo o contraseña incorrectos. Verifica tus datos.',
+    }
+  }
+
+  return {
+    ok: true,
+    mensaje: 'Inicio de sesión correcto. ¡Bienvenido!',
+    usuario: {
+      email: usuario.email,
+      nombre: usuario.nombre ?? nameFromEmail(email),
+    },
+  }
+}
 
 function nameFromEmail(email) {
   const local = email
@@ -42,23 +140,22 @@ function Login() {
   function handleSubmit(event) {
     event.preventDefault()
 
-    const normalizedEmail = email.trim().toLowerCase()
+    const resultado = validarCredenciales({ correo: email, clave: password })
 
-    if (!normalizedEmail || !password) {
-      setError('Completa el correo y la contraseña para continuar.')
-      return
-    }
-
-    if (!EMAIL_PATTERN.test(normalizedEmail)) {
-      setError(
-        'El correo no tiene una sintaxis válida. Ejemplo: nombre@dominio.com',
-      )
+    if (!resultado.ok) {
+      setError(resultado.error)
       return
     }
 
     setError('')
-    signIn({ email: normalizedEmail, name: nameFromEmail(normalizedEmail) })
-    navigate(redirectTo, { replace: true })
+    signIn({
+      email: resultado.usuario.email,
+      name: resultado.usuario.nombre,
+    })
+    navigate(redirectTo, {
+      replace: true,
+      state: { success: resultado.mensaje },
+    })
   }
 
   return (
@@ -102,11 +199,20 @@ function Login() {
             Inicia sesión
           </h1>
           <p className="mt-2 text-sm leading-6 text-stone-600">
-            Ingresa con cualquier correo y contraseña para probar el portal de
+            Ingresa con tu correo y contraseña para acceder al portal de
             clientes.
           </p>
 
           <form onSubmit={handleSubmit} noValidate className="mt-8 space-y-5">
+            {location.state?.success && (
+              <div
+                role="status"
+                className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-800"
+              >
+                {location.state.success}
+              </div>
+            )}
+
             <div>
               <label
                 htmlFor="email"
@@ -165,7 +271,15 @@ function Login() {
                 </button>
               </div>
               <p id="password-help" className="mt-2 text-xs text-stone-500">
-                Puedes usar cualquier contraseña en esta demostración.
+                La contraseña debe tener al menos 12 caracteres.
+              </p>
+              <p className="mt-1 text-right text-xs">
+                <Link
+                  to={ROUTES.recuperar}
+                  className="font-semibold text-accent-strong underline-offset-2 hover:underline"
+                >
+                  ¿Olvidaste tu contraseña?
+                </Link>
               </p>
             </div>
 
@@ -188,6 +302,16 @@ function Login() {
 
             <p className="text-center text-xs text-stone-500">
               Al ingresar serás redirigido a tu panel de cliente.
+            </p>
+
+            <p className="text-center text-xs text-stone-500">
+              ¿No tienes cuenta?{' '}
+              <Link
+                to={ROUTES.registro}
+                className="font-semibold text-accent-strong underline-offset-2 hover:underline"
+              >
+                Regístrate
+              </Link>
             </p>
           </form>
 
