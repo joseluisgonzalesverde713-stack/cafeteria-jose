@@ -127,6 +127,35 @@ export function actualizarClave(correo, nuevaClave) {
   escribirJson(USUARIOS_KEY, usuarios)
 }
 
+export function actualizarPerfilUsuario(correoActual, perfil) {
+  const emailActual = normalizarCorreo(correoActual)
+  const usuarios = leerUsuarios()
+  const index = usuarios.findIndex(
+    (usuario) => normalizarCorreo(usuario?.email) === emailActual,
+  )
+
+  if (index < 0) {
+    if (emailActual !== normalizarCorreo(DEMO_CREDENTIALS.email)) {
+      return false
+    }
+
+    usuarios.push({
+      nombre: perfil.nombre,
+      email: perfil.email,
+      telefono: perfil.telefono,
+      foto: perfil.foto,
+      clave: DEMO_CREDENTIALS.password,
+    })
+  } else {
+    usuarios[index] = {
+      ...usuarios[index],
+      ...perfil,
+    }
+  }
+
+  return escribirJson(USUARIOS_KEY, usuarios)
+}
+
 export function verificarCredenciales(correo, clave) {
   const email = normalizarCorreo(correo)
   const registrado = buscarUsuario(email)

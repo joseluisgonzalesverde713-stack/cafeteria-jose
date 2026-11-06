@@ -1,0 +1,11 @@
+{
+  "name": "cafeteria-jose",
+  "private": true,
+  "scripts": {
+    "dev": "npm --prefix Cafeteria-frontend run dev",
+    "build": "npm --prefix Cafeteria-frontend run build",
+    "lint": "npm --prefix Cafeteria-frontend run lint",
+    "preview": "npm --prefix Cafeteria-frontend run preview",
+    "test": "npm --prefix Cafeteria-frontend run test"
+  }
+}

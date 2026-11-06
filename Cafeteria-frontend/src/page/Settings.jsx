@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useAuth } from '../auth/AuthContext.js'
+import { actualizarPerfil, leerPerfil } from '../auth/perfil.js'
 import { getDefaultSettings } from '../config/defaults.js'
 import { DEMO_CREDENTIALS } from '../config/env.js'
 import { CURRENCIES, formatCurrency } from '../config/format.js'
@@ -10,11 +11,15 @@ const FIELD_CLASSES =
   'mt-2 w-full rounded-xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900 shadow-sm outline-none transition placeholder:text-stone-400 focus:border-accent focus:ring-2 focus:ring-accent-ring'
 
 function Settings() {
-  const { user } = useAuth()
+  const { user, signIn } = useAuth()
   const { settings, saveSettings, resetSettings } = useSettings()
   const [draft, setDraft] = useState(() => ({ ...settings }))
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
+  const [profileDraft, setProfileDraft] = useState(() => leerPerfil(user?.email))
+  const [profileError, setProfileError] = useState('')
+  const [profileMessage, setProfileMessage] = useState('')
+  const [claveConfirmacion, setClaveConfirmacion] = useState('')
 
   const previewTheme = getTheme(draft.theme)
   const previewTaxRate = Number(draft.taxRate) || 0
@@ -78,8 +83,94 @@ function Settings() {
     setMessage('Configuración restablecida a los valores de .env.')
   }
 
+  function updateProfileField(field, value) {
+    setProfileDraft((current) => ({ ...current, [field]: value }))
+    setProfileError('')
+    setProfileMessage('')
+  }
+
+  function handleProfileSubmit(event) {
+    event.preventDefault()
+    const resultado = actualizarPerfil({
+      correoActual: user.email,
+      datos: profileDraft,
+      claveConfirmacion,
+    })
+
+    if (!resultado.ok) {
+      setProfileError(resultado.error)
+      setProfileMessage('')
+      return
+    }
+
+    setProfileDraft(resultado.perfil)
+    signIn({
+      ...user,
+      email: resultado.perfil.email,
+      name: resultado.perfil.nombre,
+      telefono: resultado.perfil.telefono,
+      foto: resultado.perfil.foto,
+    })
+    setClaveConfirmacion('')
+    setProfileError('')
+    setProfileMessage(resultado.mensaje)
+  }
+
   return (
     <div className="space-y-6">
+      <form
+        onSubmit={handleProfileSubmit}
+        noValidate
+        className="space-y-5 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-stone-200 sm:p-6"
+      >
+        <div>
+          <h2 className="text-base font-bold text-stone-900">Mi perfil</h2>
+          <p className="mt-1 text-sm text-stone-500">
+            Actualiza tus datos personales. El correo requiere confirmación.
+          </p>
+        </div>
+        <div className="grid gap-5 sm:grid-cols-2">
+          {[
+            ['nombre', 'Nombre', 'text', 'Tu nombre completo'],
+            ['email', 'Correo electrónico', 'email', 'nombre@dominio.com'],
+            ['telefono', 'Teléfono', 'tel', '+52 55 1234 5678'],
+            ['foto', 'Foto de perfil (URL)', 'url', 'https://...'],
+          ].map(([field, label, type, placeholder]) => (
+            <div key={field}>
+              <label htmlFor={`perfil-${field}`} className="text-sm font-semibold text-stone-800">
+                {label}
+              </label>
+              <input
+                id={`perfil-${field}`}
+                type={type}
+                value={profileDraft[field]}
+                onChange={(event) => updateProfileField(field, event.target.value)}
+                placeholder={placeholder}
+                className={FIELD_CLASSES}
+              />
+            </div>
+          ))}
+        </div>
+        <div>
+          <label htmlFor="clave-confirmacion" className="text-sm font-semibold text-stone-800">
+            Contraseña actual (solo para cambiar correo)
+          </label>
+          <input
+            id="clave-confirmacion"
+            type="password"
+            value={claveConfirmacion}
+            onChange={(event) => setClaveConfirmacion(event.target.value)}
+            autoComplete="current-password"
+            className={FIELD_CLASSES}
+          />
+        </div>
+        {profileError && <p role="alert" className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{profileError}</p>}
+        {profileMessage && <p role="status" className="rounded-xl bg-emerald-50 px-4 py-3 text-sm text-emerald-800">{profileMessage}</p>}
+        <button type="submit" className="rounded-xl bg-accent px-4 py-3 text-sm font-semibold text-white">
+          Guardar perfil
+        </button>
+      </form>
+
       <div className="grid gap-4 lg:grid-cols-3">
         <form
           onSubmit={handleSubmit}
