@@ -6,24 +6,35 @@ import { SettingsContext } from './SettingsContext.js'
 
 function readStoredSettings() {
   const defaults = getDefaultSettings()
+  let stored = defaults
 
   try {
     const raw = window.localStorage.getItem(APP_CONFIG.settingsStorageKey)
 
-    if (!raw) {
-      return defaults
+    if (raw) {
+      const parsed = JSON.parse(raw)
+
+      if (parsed && typeof parsed === 'object') {
+        stored = { ...defaults, ...parsed }
+      }
     }
-
-    const parsed = JSON.parse(raw)
-
-    if (!parsed || typeof parsed !== 'object') {
-      return defaults
-    }
-
-    return { ...defaults, ...parsed }
   } catch {
-    return defaults
+    stored = defaults
   }
+
+  const flagKey = 'cafeteria-jose:navidad-activada'
+
+  if (!window.localStorage.getItem(flagKey)) {
+    window.localStorage.setItem(flagKey, '1')
+    const nextSettings = { ...stored, theme: 'navidad' }
+    window.localStorage.setItem(
+      APP_CONFIG.settingsStorageKey,
+      JSON.stringify(nextSettings),
+    )
+    return nextSettings
+  }
+
+  return stored
 }
 
 function SettingsProvider({ children }) {

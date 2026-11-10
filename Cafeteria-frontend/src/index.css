@@ -41,3 +41,200 @@
   --app-accent-soft: #fff7ed;
   --app-accent-ring: #fed7aa;
 }
+
+@keyframes navidad-nevada {
+  0% {
+    transform: translateY(-10vh) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.9;
+  }
+  90% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateY(110vh) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+.navidad-nieve {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.navidad-copo {
+  position: absolute;
+  top: -10vh;
+  color: #e0f2fe;
+  text-shadow: 0 0 6px rgba(255, 255, 255, 0.8);
+  animation-name: navidad-nevada;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+@keyframes navidad-neon {
+  0%,
+  100% {
+    color: #fff;
+    text-shadow:
+      0 0 4px #fff,
+      0 0 10px #ef4444,
+      0 0 20px #ef4444,
+      0 0 34px #b91c1c;
+  }
+  50% {
+    color: #f0fdf4;
+    text-shadow:
+      0 0 4px #fff,
+      0 0 10px #22c55e,
+      0 0 20px #22c55e,
+      0 0 34px #166534;
+  }
+}
+
+.navidad-neon {
+  color: #fff;
+  animation: navidad-neon 2.6s ease-in-out infinite;
+}
+
+.navidad-letrero {
+  position: relative;
+}
+
+.navidad-letrero::before {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  border-radius: 0.9rem;
+  border: 2px dashed rgba(255, 255, 255, 0.28);
+  pointer-events: none;
+}
+
+@keyframes navidad-saludo {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-6deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(6deg);
+  }
+}
+
+.navidad-santa {
+  display: inline-block;
+  animation: navidad-saludo 1.8s ease-in-out infinite;
+  transform-origin: 50% 90%;
+}
+
+.navidad-santa-fijo {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  pointer-events: none;
+}
+
+.navidad-santa-emoji {
+  font-size: 3rem;
+  line-height: 1;
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.25));
+  animation: navidad-saludo 2.4s ease-in-out infinite;
+  transform-origin: 50% 90%;
+}
+
+.navidad-santa-globo {
+  position: relative;
+  max-width: 11rem;
+  background: #fff;
+  color: #7f1d1d;
+  font-size: 0.8rem;
+  font-weight: 700;
+  line-height: 1.25;
+  padding: 0.5rem 0.75rem;
+  border: 2px solid #b91c1c;
+  border-radius: 0.9rem;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+}
+
+.navidad-santa-globo::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: -8px;
+  transform: translateY(-50%);
+  border: 8px solid transparent;
+  border-left-color: #fff;
+}
+
+@keyframes navidad-parpadeo {
+  0%,
+  100% {
+    opacity: 1;
+    box-shadow: 0 0 10px 2px currentColor;
+  }
+  50% {
+    opacity: 0.45;
+    box-shadow: 0 0 2px 0 currentColor;
+  }
+}
+
+.navidad-fondo {
+  background-image:
+    radial-gradient(circle at 15% 0%, rgba(185, 28, 28, 0.07), transparent 40%),
+    radial-gradient(circle at 85% 15%, rgba(22, 101, 52, 0.08), transparent 45%);
+  background-attachment: fixed;
+}
+
+.navidad-guirnalda {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-around;
+  gap: 10px;
+  height: 26px;
+  padding: 6px 4px 0;
+  overflow: hidden;
+  background: linear-gradient(#14532d, #166534);
+  border-bottom: 3px solid #052e16;
+}
+
+.navidad-cable {
+  position: absolute;
+  inset-inline: 0;
+  top: 6px;
+  height: 3px;
+  background: repeating-linear-gradient(
+    90deg,
+    #0f172a 0 10px,
+    #1e293b 10px 20px
+  );
+}
+
+.navidad-luz {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 10px;
+  height: 10px;
+  border-radius: 9999px;
+  color: currentColor;
+  animation: navidad-parpadeo 2.2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .navidad-copo,
+  .navidad-luz,
+  .navidad-santa,
+  .navidad-santa-emoji,
+  .navidad-neon {
+    animation: none;
+  }
+}

@@ -39,9 +39,17 @@ export const THEMES = {
     soft: '#faf6f2',
     ring: '#e0cdbb',
   },
+  navidad: {
+    label: 'Navidad',
+    accent: '#b91c1c',
+    strong: '#991b1b',
+    dark: '#7f1d1d',
+    soft: '#fef7f0',
+    ring: '#86efac',
+  },
 }
 
-export const DEFAULT_THEME = 'naranja'
+export const DEFAULT_THEME = 'navidad'
 
 export function getTheme(key) {
   return THEMES[key] ?? THEMES[DEFAULT_THEME]
